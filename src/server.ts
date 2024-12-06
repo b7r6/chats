@@ -47,13 +47,20 @@ function handleJoin(username: string, socket: WebSocket) {
   } else {
     users.push({ username, socket });
     console.log(`User ${username} added. Total users: ${users.length}`);
-    broadcast({ type: "notification", message: `${username} joined the chat` });
+    broadcastToAll({ type: "notification", message: `${username} joined the chat` });
   }
 }
 
-function handleMessage(username: string, text: string) {
-  console.log(`Handling message from ${username}: ${text}`);
-  broadcast({ type: "message", username, text });
+function handleMessage(sender: string, text: string) {
+  console.log(`Handling message from ${sender}: ${text}`);
+  console.log('debugging', shouldBroadcastAll(text), sender, extractReceiver(text));
+  if (shouldBroadcastAll(text)) {
+    broadcastToAll({ type: "message", username: sender, text });
+  } else {
+    const receiver = extractReceiver(text);
+    broadcaseToUser(sender, receiver, { type: "message", receiver, text });
+  }
+  
 }
 
 function handleDisconnect(socket: WebSocket) {
@@ -63,13 +70,40 @@ function handleDisconnect(socket: WebSocket) {
     console.log(`User ${username} disconnected.`);
     users.splice(userIndex, 1);
     console.log(`User ${username} removed. Total users: ${users.length}`);
-    broadcast({ type: "notification", message: `${username} left the chat` });
+    broadcastToAll({ type: "notification", message: `${username} left the chat` });
   }
 }
 
-function broadcast(message: object) {
+function broadcastToAll(message: object) {
   console.log(`Broadcasting message: ${JSON.stringify(message)}`);
   users.forEach((user) => {
     user.socket.send(JSON.stringify(message));
   });
+}
+
+function broadcaseToUser(sender:string, receiver: string, message: object) {
+  console.log(`Broadcasting message to ${receiver}: ${JSON.stringify(message)}`);
+  const user = users.find((user) => user.username === receiver);
+  if (user) {
+    user.socket.send(JSON.stringify(message));
+  } else {
+    const senderUser = users.find((user) => user.username === sender);
+    senderUser && senderUser.socket.send(JSON.stringify({ type: "notification", message: `User ${receiver} not found` }));
+  }
+}
+
+function shouldBroadcastAll(message: string) {
+  return !message.startsWith("/");
+}
+
+function extractReceiver(text: string): string {
+  const spaceIndex = text.indexOf(' ');
+  
+  // If there's no space, the entire remaining part after '/' is the user.
+  if (spaceIndex === -1) {
+    return text.slice(1);
+  }
+  
+  // Extract the substring between '/' and the first space
+  return text.slice(1, spaceIndex);
 }
