@@ -1,0 +1,5 @@
+node_modules
+/dist/
+y
+/tsconfig.tsbuildinfo
+/.q_file_picker/

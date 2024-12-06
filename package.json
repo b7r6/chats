@@ -1,0 +1,30 @@
+{
+  "name": "simple-chat-app",
+  "version": "1.0.0",
+  "description": "A simple command-line chat application using TypeScript",
+  "main": "dist/server.js",
+  "scripts": {
+    "start": "node dist/server.js",
+    "build": "tsc",
+    "dev": "ts-node src/server.ts",
+    "format": "prettier --write 'src/**/*.{ts,tsx,json,md}'"
+  },
+  "dependencies": {
+    "ws": "^8.14.1"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.5.13",
+    "@typescript-eslint/eslint-plugin": "^8.17.0",
+    "@typescript-eslint/parser": "^8.17.0",
+    "eslint": "^9.16.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-prettier": "^0.0.0-empty",
+    "prettier": "^3.4.2",
+    "ts-node": "^10.5.0",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
